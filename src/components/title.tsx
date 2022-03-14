@@ -1,39 +1,44 @@
-import React from 'react';
 import { useSpring, animated } from 'react-spring';
+import React, { useState } from 'react';
+import Subtitle from './subtitle';
 
-const Title = (props: { title: string, subtitle: string }) => {
-  const configTitleAnimation = {
-    duration: 1500,
+const Title = (props: { main: string, sub: string, setTitleState: React.Dispatch<boolean> }) => {
+  const [isOpened, setIsOpened] = useState(false);
+  const [isOpenedSub, setIsOpenedSub] = useState(false);
+  const opened = () => {
+    setIsOpened(true);
   };
-  const configSubtitleAnimation = {
+  const setSubState = () => {
+    setIsOpenedSub(true);
+  };
+  const isUpped = () => {
+    props.setTitleState(true);
+  };
+  const configAnimation = {
     duration: 2000,
   };
   const animation = useSpring({
     from: { opacity: 0, color: '#282c34', y: 0 },
-    to: { opacity: 1, color: '#FFFFFF' },
-    config: configTitleAnimation,
-  });
-  const subAnimation = useSpring({
-    delay: 2000,
-    from: { width: 0, y: 0 },
-    to: { width: window.innerWidth },
-    config: configSubtitleAnimation,
+    to: [{ opacity: 1, color: '#FFFFFF' }, () => opened(), { y: isOpenedSub ? window.innerHeight * -0.4 : 0 }],
+    onRest: isOpenedSub ? isUpped : opened,
+    config: configAnimation,
   });
 
   return (
     <>
-      <div className={'top-page-title'}>
-        <animated.div style={animation}>
-          <h1>{props.title}</h1>
-        </animated.div>
-      </div>
-      <div className={'top-page-subtitle'}>
-        <animated.div style={subAnimation}>
-          <p>{props.subtitle}</p>
-        </animated.div>
-      </div>
+      <animated.div
+        className={'top-page-title'}
+        style={animation}
+      >
+        <h1>{props.main}</h1>
+      </animated.div>
+      <Subtitle
+        text={props.sub}
+        isOpenedTitle={isOpened}
+        setIsOpenedSub={setSubState}
+      />
     </>
-  )
+  );
 };
 
 export default Title;
